@@ -6,6 +6,9 @@ const dbNadia = supabase.createClient(URL_PROYECTO, CLAVE_ANONIMA);
 const muralGrid = document.getElementById('muralGrid');
 const modal = document.getElementById('modalMural');
 
+// URL de una imagen estética genérica (puedes cambiarla por cualquier otra)
+const FOTO_GENERICA = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=500&auto=format&fit=crop';
+
 async function loadMural() {
     const { data, error } = await dbNadia
         .from('wishes')
@@ -22,18 +25,23 @@ async function loadMural() {
         // Rotación aleatoria
         const rot = (Math.random() * 6 - 3) + 'deg';
         card.style.transform = `rotate(${rot})`;
-
+		
+		 // Si no hay imagen, usamos la GENÉRICA
+        const imageToShow = item.image_url ? item.image_url : FOTO_GENERICA;
+        
         const snippet = item.message.substring(0, 50) + (item.message.length > 50 ? '...' : '');
 
-        card.innerHTML = `
-            ${item.image_url ? `<img src="${item.image_url}">` : '<div style="height:180px; background:#eee"></div>'}
-            <p>${snippet}</p>
-        `;
+		card.innerHTML = `
+			<img src="${imageToShow}">
+			<div class="card-info">
+			<strong>De: ${item.name || 'Anónimo'}</strong>
+			<p>${snippet}</p>
+			</div>
+		`;	
 
         card.onclick = () => {
-            document.getElementById('modalImg').src = item.image_url || '';
-            document.getElementById('modalImg').style.display = item.image_url ? 'block' : 'none';
-            document.getElementById('modalText').innerText = item.message;
+            document.getElementById('modalImg').src = imageToShow;
+            document.getElementById('modalText').innerHTML = `<strong>De: ${item.name || 'Anónimo'}</strong><br><br>${item.message}`;
             modal.style.display = 'flex';
         };
 
