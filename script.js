@@ -3,87 +3,73 @@ const CLAVE_ANONIMA = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 
 const dbNadia = supabase.createClient(URL_PROYECTO, CLAVE_ANONIMA);
 
+// Imagen estética si el usuario no sube una
+const FOTO_GENERICA = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=500&auto=format&fit=crop';
+
 const muralGrid = document.getElementById('muralGrid');
 const modal = document.getElementById('modalMural');
 
-// URL de una imagen estética genérica (puedes cambiarla por cualquier otra)
-const FOTO_GENERICA = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=500&auto=format&fit=crop';
+// --- CARGAR DATOS ---
+async function loadMural() {
+    try {
+        const { data, error } = await dbNadia
+            .from('wishes')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-/* async function loadMural() {
-    const { data, error } = await dbNadia
-        .from('wishes')
-        .select('*')
-        .order('created_at', { ascending: false });
+        if (error) throw error;
 
-    if (error) return console.error(error);
-
-    muralGrid.innerHTML = '';
-    data.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'card';
+        muralGrid.innerHTML = '';
         
-        // Rotación aleatoria
-        const rot = (Math.random() * 6 - 3) + 'deg';
-        card.style.transform = `rotate(${rot})`;
-		
-		 // Si no hay imagen, usamos la GENÉRICA
-        const imageToShow = item.image_url ? item.image_url : FOTO_GENERICA;
-        
-        const snippet = item.message.substring(0, 50) + (item.message.length > 50 ? '...' : '');
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card fade-in';
+            
+            // Rotación aleatoria para efecto visual
+            const rot = (Math.random() * 4 - 2) + 'deg';
+            card.style.transform = `rotate(${rot})`;
 
-		card.innerHTML = `
-			<img src="${imageToShow}">
-			<div class="card-info">
-			<strong>De: ${item.name || 'Anónimo'}</strong>
-			<p>${snippet}</p>
-			</div>
-		`;	
+            const imgToShow = item.image_url || FOTO_GENERICA;
+            
+            // Limpiamos saltos de línea solo para la vista previa (snippet)
+            const cleanSnippet = item.message.replace(/\n/g, " ").substring(0, 45) + "...";
 
-        card.onclick = () => {
-            document.getElementById('modalImg').src = imageToShow;
-            document.getElementById('modalText').innerHTML = `<strong>De: ${item.name || 'Anónimo'}</strong><br><br>${item.message}`;
-            modal.style.display = 'flex';
-        };
+            card.innerHTML = `
+                <div class="photo-frame">
+                    <img src="${imgToShow}" loading="lazy">
+                </div>
+                <div class="card-text">
+                    <strong>De: ${item.name || 'Anónimo'}</strong>
+                    <p>${cleanSnippet}</p>
+                </div>
+            `;
 
-        muralGrid.appendChild(card);
-    });
-} */
+            // Evento para abrir el modal
+            card.onclick = () => openModal(item, imgToShow);
+            
+            muralGrid.appendChild(card);
+        });
+    } catch (err) {
+        console.error("Error al cargar mural:", err.message);
+    }
+}
 
-data.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'card fade-in';
-    const img = item.image_url || FOTO_GENERICA;
-    
-    // Para la miniatura: quitamos saltos de línea para que no rompa el diseño
-    const snippet = item.message.replace(/\n/g, " ").substring(0, 40) + "...";
-    
-    card.innerHTML = `
-        <div class="photo-frame">
-            <img src="${img}" loading="lazy">
-        </div>
-        <div class="card-text">
-            <strong>${item.name}</strong>
-            <p>${snippet}</p> 
-        </div>
-    `;
-
-    card.onclick = () => openModal(item, img);
-    grid.appendChild(card);
-});
-
+// --- LÓGICA DEL MODAL ---
 function openModal(item, img) {
-    const modal = document.getElementById('modalMural');
     document.getElementById('modalImg').src = img;
     
-    // Usamos <p> para que el CSS de pre-wrap haga su efecto
+    // El CSS debe tener white-space: pre-wrap para que esto funcione bien
     document.getElementById('modalText').innerHTML = `
-        <h3>De: ${item.name}</h3>
-        <p>${item.message}</p> 
+        <h3>De: ${item.name || 'Anónimo'}</h3>
+        <p>${item.message}</p>
     `;
+    
     modal.style.display = 'flex';
 }
 
+// Cerrar modal al tocar la X o fuera del cuadro
 document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
 window.onclick = (e) => { if(e.target == modal) modal.style.display = 'none'; };
 
+// Iniciar carga
 window.onload = loadMural;
