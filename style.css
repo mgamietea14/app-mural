@@ -94,6 +94,26 @@ h1 { color: #d63384; font-family: 'Georgia', serif; }
     color: #444;
     font-size: 1rem;
 }
+/* --- MODAL OPTIMIZADO PARA IMAGEN COMPLETA --- */
+
+/* ... (resto de las reglas del modal igual que antes) ... */
+
+/* Imagen dentro del modal */
+#modalImg {
+    width: 100%;            /* Ocupa todo el ancho disponible */
+    max-height: 40vh;       /* Limita la altura al 40% de la pantalla para dejar espacio al texto */
+    
+    /* LA MAGIA: Muestra la imagen completa sin zoom y sin recortes */
+    object-fit: contain;    
+    
+    /* Centrado y fondo (opcional) */
+    display: block;
+    margin: 0 auto;
+    border-radius: 20px 20px 0 0; /* Bordes redondeados superiores */
+    
+    /* Fondo oscuro sutil por si la imagen tiene franjas negras */
+    background-color: rgba(0, 0, 0, 0.05); 
+}
 
 /* Botón de cerrar flotante o fijo */
 .close {
