@@ -72,3 +72,11 @@ h1 { color: #d63384; font-family: 'Georgia', serif; }
     margin: 0;
     font-style: italic;
 }
+/* Para que el texto en la tarjeta y en el modal respete los "Enters" */
+.card-text p, 
+#modalText p {
+    white-space: pre-wrap;      /* Respeta saltos de línea y espacios */
+    word-wrap: break-word;     /* Corta palabras muy largas para que no se salgan */
+    text-align: left;          /* Alineación natural para lectura larga */
+    line-height: 1.5;          /* Mejora la legibilidad */
+}

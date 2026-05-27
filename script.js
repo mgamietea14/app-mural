@@ -9,7 +9,7 @@ const modal = document.getElementById('modalMural');
 // URL de una imagen estética genérica (puedes cambiarla por cualquier otra)
 const FOTO_GENERICA = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=500&auto=format&fit=crop';
 
-async function loadMural() {
+/* async function loadMural() {
     const { data, error } = await dbNadia
         .from('wishes')
         .select('*')
@@ -47,6 +47,40 @@ async function loadMural() {
 
         muralGrid.appendChild(card);
     });
+} */
+
+data.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'card fade-in';
+    const img = item.image_url || FOTO_GENERICA;
+    
+    // Para la miniatura: quitamos saltos de línea para que no rompa el diseño
+    const snippet = item.message.replace(/\n/g, " ").substring(0, 40) + "...";
+    
+    card.innerHTML = `
+        <div class="photo-frame">
+            <img src="${img}" loading="lazy">
+        </div>
+        <div class="card-text">
+            <strong>${item.name}</strong>
+            <p>${snippet}</p> 
+        </div>
+    `;
+
+    card.onclick = () => openModal(item, img);
+    grid.appendChild(card);
+});
+
+function openModal(item, img) {
+    const modal = document.getElementById('modalMural');
+    document.getElementById('modalImg').src = img;
+    
+    // Usamos <p> para que el CSS de pre-wrap haga su efecto
+    document.getElementById('modalText').innerHTML = `
+        <h3>De: ${item.name}</h3>
+        <p>${item.message}</p> 
+    `;
+    modal.style.display = 'flex';
 }
 
 document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
